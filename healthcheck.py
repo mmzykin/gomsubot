@@ -497,12 +497,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logger.info("Health check interrupted by user")
     finally:
-        loop.close() * 1000)
-            }
-            
-            await self.log_health_check("telegram_api", error_details, status="error")
-            logger.error(f"Telegram API check failed: {e}")
-            
-            await self.send_admin_alert(
-                f"Telegram API check failed: {str(e)}\n"
-                f"Response time: {int(response_time
+        loop.close()

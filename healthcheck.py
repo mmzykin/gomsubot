@@ -231,9 +231,9 @@ class HealthCheck:
                         "name": 1,
                         "days_inactive": {
                             "$divide": [
-                                {"$subtract": [datetime.now(), "$last_activity"]},
-                                1000 * 60 * 60 * 24  # Convert ms to days
-                            ]
+                                {"$subtract": [{"$toDate": datetime.now()}, "$last_activity"]},
+                                    1000 * 60 * 60 * 24  # Convert ms to days
+                                        ]
                         }
                     }
                 }

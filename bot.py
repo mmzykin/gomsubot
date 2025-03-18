@@ -1,3 +1,4 @@
+from bson.objectid import ObjectId
 import logging
 import os
 import asyncio
@@ -85,7 +86,12 @@ def get_rank_index(rank: str) -> int:
         return RANKS.index(rank)
     except ValueError:
         return -1
-
+def register_all_handlers(dp):
+    """Register all message handlers."""
+    # All handlers are already registered with decorators
+    # This function exists to provide an interface for main.py
+    pass
+    
 def is_rank_sufficient_for_mentor(rank: str) -> bool:
     mentor_min_index = get_rank_index(MENTOR_MINIMUM_RANK)
     user_rank_index = get_rank_index(rank)
@@ -106,14 +112,14 @@ async def fetch_ogs_data(username: str) -> Dict:
                 user_id = data["results"][0]["id"]
                 
                 # Get detailed user info
-                async with session.get(f"{OGS_API_URL}/players/{user_id}") as user_resp:
+                async with session.get(f"{OGS_API_URL}/players/{user_id}/") as user_resp:
                     if user_resp.status != 200:
                         return {"error": "Failed to fetch detailed user data"}
                     
                     user_data = await user_resp.json()
                     
                     # Get recent games
-                    async with session.get(f"{OGS_API_URL}/players/{user_id}/games") as games_resp:
+                    async with session.get(f"{OGS_API_URL}/players/{user_id}/games/") as games_resp:
                         if games_resp.status != 200:
                             return {"error": "Failed to fetch user games"}
                         
@@ -711,6 +717,14 @@ async def process_match_ogs_link(message: types.Message, state: FSMContext):
     await message.answer(
         "Match recorded successfully! The leaderboard has been updated."
     )
+async def setup_bot_commands(bot):
+    """Set up bot commands for the menu."""
+    commands = [
+        types.BotCommand(command="start", description="Start the bot"),
+        types.BotCommand(command="register", description="Register your account"),
+        types.BotCommand(command="help", description="Get help using the bot")
+    ]
+    await bot.set_my_commands(commands)
 
 @dp.message_handler(Text(equals="Find Mentor", ignore_case=True))
 async def find_mentor(message: types.Message):

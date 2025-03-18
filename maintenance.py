@@ -555,9 +555,11 @@ def handle_exit(signum, frame):
     if 'client' in globals():
         client.close()
     if hasattr(asyncio, 'all_tasks'):
-        for task in asyncio.all_tasks():
+        for task in asyncio.all_tasks(loop=asyncio.get_event_loop()):
             task.cancel()
-    
+    elif hasattr(asyncio, 'Task'):
+        for task in asyncio.Task.all_tasks(loop=asyncio.get_event_loop()):
+            task.cancel()
     loop = asyncio.get_event_loop()
     if loop.is_running():
         loop.stop()

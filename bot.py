@@ -733,6 +733,25 @@ async def setup_bot_commands(bot):
     ]
     await bot.set_my_commands(commands)
 
+@dp.message_handler(commands=['help'])
+async def cmd_help(message: types.Message):
+    help_text = (
+        "🤖 *Go Club Bot Help* 🤖\n\n"
+        "Here are the available commands:\n"
+        "/start - Start the bot and access main menu\n"
+        "/register - Register a new account\n"
+        "/help - Show this help message\n\n"
+        "You can also use the keyboard buttons below for navigation."
+    )
+    
+    # Add keyboard for main actions
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    keyboard.add(
+        KeyboardButton("Register"),
+        KeyboardButton("Help")
+    )
+    
+    await message.answer(help_text, reply_markup=keyboard, parse_mode=ParseMode.MARKDOWN)
 @dp.message_handler(Text(equals="Find Mentor", ignore_case=True))
 async def find_mentor(message: types.Message):
     # Get available mentors

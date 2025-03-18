@@ -517,8 +517,15 @@ async def show_event_details(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     
     event_id = callback_query.data.split('_')[1]
-    event = await events_collection.find_one({"_id": event_id})
-    
+    # Handle both string IDs and ObjectId based on the format
+    if event_id.startswith("event_"):
+        event = await events_collection.find_one({"_id": event_id})
+    else:
+        try:
+            event = await events_collection.find_one({"_id": ObjectId(event_id)})
+        except:
+            event = await events_collection.find_one({"_id": event_id})
+        
     if not event:
         await bot.send_message(
             callback_query.from_user.id,
@@ -1549,13 +1556,23 @@ async def cancel_subscription(callback_query: types.CallbackQuery):
         return
     
     # Mark subscription as cancelled
-    await subscriptions_collection.update_one(
-        {"_id": ObjectId(subscription_id)},
-        {"$set": {
-            "status": "cancelled",
-            "cancelled_at": datetime.now()
-        }}
-    )
+    try:
+        await subscriptions_collection.update_one(
+            {"_id": ObjectId(subscription_id)},
+            {"$set": {
+                "status": "cancelled",
+                "cancelled_at": datetime.now()
+            }}
+        )
+    except:
+    # In case _id is stored as a string
+        await subscriptions_collection.update_one(
+            {"_id": subscription_id},
+            {"$set": {
+                "status": "cancelled",
+                "cancelled_at": datetime.now()
+            }}
+        )
     
     # Get mentor details
     mentor_id = subscription["mentor_id"]

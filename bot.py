@@ -242,8 +242,8 @@ async def cmd_start(message: types.Message):
 
 @dp.message_handler(commands=['register'])
 async def cmd_register(message: types.Message):
-    await RegistrationForm.name.set()
     await message.answer("Let's get you registered! What's your name?")
+    await RegistrationForm.name.set()
 
 @dp.message_handler(state=RegistrationForm.name)
 async def process_name(message: types.Message, state: FSMContext):

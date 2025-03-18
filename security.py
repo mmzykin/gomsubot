@@ -1,3 +1,4 @@
+from bson.objectid import ObjectId
 import logging
 import os
 import re
@@ -13,6 +14,12 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.dispatcher.handler import CancelHandler
 from dotenv import load_dotenv
+from aiogram.dispatcher.filters import IDFilter
+
+def is_chat_admin(handler):
+    """Decorator to check if user is an admin."""
+    admin_ids = [int(id_str) for id_str in ADMIN_CHAT_IDS if id_str.isdigit()]
+    return IDFilter(chat_id=admin_ids)(handler)
 
 # Load environment variables
 load_dotenv()

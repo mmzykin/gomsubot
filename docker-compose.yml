@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:4.4
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - go-club-network
+    environment:
+      - MONGO_INITDB_DATABASE=go_club_db
+    command: ["--auth", "--bind_ip_all"]
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/go_club_db --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  go-club-bot:
+    image: ${DOCKER_HUB_USERNAME}/go-club-bot:latest
+    restart: always
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - go-club-network
+    volumes:
+      - bot-backups:/app/backups
+      - bot-logs:/app/logs
+    env_file:
+      - .env
+    environment:
+      - MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/go_club_db
+      - TZ=UTC
+
+networks:
+  go-club-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  bot-backups:
+  bot-logs:
